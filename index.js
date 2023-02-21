@@ -10,7 +10,10 @@ app.use(express.urlencoded({ extended: true}))
 app.use(cors())
 
 const AuthRoutes = require('./routes/authRoutes.js');
-app.use('/api', cors(), AuthRoutes);
+app.use('/auth', cors(), AuthRoutes);
+
+const SpotifyRoutes = require('./routes/spotifyRoutes.js');
+app.use('/api', cors(), SpotifyRoutes);
 
 app.listen(port, () => {
   console.log(`app listening at http://localhost:${port}`)
