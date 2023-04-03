@@ -9,25 +9,37 @@ let spotifyApi = new SpotifyWebApi()
 router.get('/getUser', async (req, res) => {
   const token = req.query.token;
   console.log(token)
-  // spotifyApi.authorizationCodeGrant(code)
   try {
     spotifyApi.setAccessToken(token)
     const me = await spotifyApi.getMe();
-    res.send(me.body.id)
-    res.send(getUserPlaylists(me.body.id));
+
+    let topTracks = await getTopTracks()
+
+    const topAlbums = await Promise.all(topTracks.map(async (object) => {
+      const albumInfo = await getAlbum(object.album.id)
+      return {
+        ...albumInfo,
+        artists: object.artists
+      }
+    }))
+    res.send(topAlbums)
   } catch(error) {
     console.error('error getting profile: ',error);
   }
-	// await axios('https://api.spotify.com/v1/me', {
-	// 	headers: {
-	// 		'Authorization': `Bearer ${req.params.token}`
-	// 	}
-	// })
-	// .then(response => response.data)
-	// .then(data => {
-	// 	res.json(data);
-	// });
 });
+
+async function getAlbum(id) {
+  const data = await spotifyApi.getAlbum(id)
+
+  let album = {
+    title: data.body.name,
+    id: data.body.id,
+    image: data.body.images[0].url,
+    thumbnail: data.body.images[2].url
+  }
+
+  return album
+}
 
 async function getUserPlaylists(userName) {
   const data = await spotifyApi.getUserPlaylists(userName)
@@ -47,6 +59,39 @@ async function getUserPlaylists(userName) {
   return playlists
 }
 
+async function getTopTracks() {
+  const data = await spotifyApi.getMyTopTracks()
+
+  let tracks = [];
+
+  for (let track_obj of data.body.items) {
+    let track = {
+      title: track_obj.name,
+      album: {title: track_obj.album.name, id: track_obj.album.id},
+      artists: [...track_obj.artists.map(object => {
+        return object.name
+      })]
+    }
+    tracks.push(track);
+  }
+
+  return tracks;
+}
+
+async function getTopArtists() {
+  const data = await spotifyApi.getMyTopArtists()
+   console.log(data)
+  let artists = [];
+
+  for (let artist_obj of data.body.items) {
+    artists.push(artist_obj);
+    console.log(artist_obj)
+  }
+  
+  console.log("---------------+++++++++++++++++++++++++")
+  return artists;
+}
+
 async function getPlaylistTracks(playlistId, playlistName) {
 
   const data = await spotifyApi.getPlaylistTracks(playlistId, {
@@ -55,9 +100,6 @@ async function getPlaylistTracks(playlistId, playlistName) {
     fields: 'items'
   })
 
-  // console.log('The playlist contains these tracks', data.body);
-  // console.log('The playlist contains these tracks: ', data.body.items[0].track);
-  // console.log("'" + playlistName + "'" + ' contains these tracks:');
   let tracks = [];
 
   for (let track_obj of data.body.items) {
