@@ -3,7 +3,14 @@ const cors = require('cors')
 require('dotenv').config()
 const app = express()
 const puppeteer = require('puppeteer')
+const R = require('rambda')
 const port = process.env.PORT || 8888
+const args = [
+  '--disable-gpu',
+  '--no-sandbox',
+  '--disable-dev-shm-usage',
+  // '--shm-size=3gb'
+]
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))
@@ -15,34 +22,67 @@ app.use('/auth', cors(), AuthRoutes);
 const SpotifyRoutes = require('./routes/spotifyRoutes.js');
 app.use('/api', cors(), SpotifyRoutes);
 
+const CrudRoutes = require('./routes/CRUD.js')
+app.use('/crud', cors(), CrudRoutes)
+
 app.listen(port, () => {
   console.log(`app listening at http://localhost:${port}`)
 })
 
-// respond with "hello world" when a GET request is made to the homepage
-app.get('/getDiscogsListings', async (req, res) => {
-  puppeteer.launch({headless: true}).then(async function (browser) {
-    const page = await browser.newPage()
-    let order
-    
-    if (req.query.sort == 'lowestfirst') {
-      order = 'price%2Casc';
+let browser;
+app.post('/getDiscogsListings', async (req, res) => {
+  browser = await puppeteer.launch({
+  headless: true,
+  handleSIGINT: false,
+  args: args})
+
+  let order
+  if(req.body.sort == 'newestfirst') {
+    order = "listed%2Cdesc"
+  }
+  if (req.body.sort == 'lowestfirst') {
+    order = 'price%2Casc';
+  }
+  let limit = req.body.limit
+  let format = req.body.format
+  let body = req.body.list
+
+  const promised = body.map(async function (album) {
+    let query = `${[...album.artists]}-${album.title}`
+    const encodedQuery = encodeURIComponent(query)
+    const discogsData = await scrapeWebPage(order, limit, format, encodedQuery)
+    return {
+      ...album,
+      listings: {
+        ...discogsData
+      }
     }
+  })
+  await Promise.all(promised)
+  .then(async (promised) => {
+    // console.log(promised)
+    res.send(promised)
+    await browser.close()
+  })
 
-    const encodedQuery = encodeURIComponent(req.query.query)
+})  
 
-    await page.goto(`https://www.discogs.com/sell/list?sort=${order}&limit=${req.query.limit}&format=${req.query.format}&q=${encodedQuery}`, {
-
+  
+async function scrapeWebPage(order, limit, format, encodedQuery) {
+  try {
+    const page = await browser.newPage()
+  
+    await page.goto(`https://www.discogs.com/sell/list?sort=${order}&limit=${limit}&q=${encodedQuery}`, {
       waitUntil: 'networkidle2'
     });
     await page.waitForSelector('tr.shortcut_navigable');
-    let results = await getPageListings(page)
-    
-    await browser.close()
-    res.send(results)
-  })
-})
-
+    let result = await getPageListings(page)
+    await page.close()
+    return result
+  } catch(e) {
+    console.log(e)
+  }
+}
 
 /**
  * 
@@ -51,22 +91,22 @@ app.get('/getDiscogsListings', async (req, res) => {
  */
 async function getPageListings(page) {
   try {
-    return await page.$$eval('tr.shortcut_navigable:not(.unavailable)', items => {
+    return await page.$$eval('tr.shortcut_navigable:not(.unavailable)', async items => {
       let itemCollection = [];
       [...items].map( async item => {
         const result = {
-          title: await item.querySelector('td.item_description a.item_description_title').innerText,
+          discogs_title: await item.querySelector('td.item_description a.item_description_title').innerText,
           price: await item.querySelector('td.item_price > span.price').innerText,
           shipping: await item.querySelector('td.item_price > span.item_shipping').innerText,
           link: await item.querySelector('td.item_description a.item_description_title').href,
           condition: await item.querySelector('td.item_description p.item_condition span.condition-label-mobile + span').innerText,
-          image: await item.querySelector('td.item_picture > a.thumbnail-lazyload > img').getAttribute("data-src"),
+          discogs_image: await item.querySelector('td.item_picture > a.thumbnail-lazyload > img').getAttribute("data-src"),
           seller_name: await item.querySelector('td.seller_info div.seller_block > strong > a').innerText,
           seller_rating: await item.querySelector('td.seller_info span.star_rating + strong').innerText
         }
         itemCollection.push(result)
       })
-      return itemCollection
+      return await itemCollection
     })
   } catch(e) {
     console.log(e)
