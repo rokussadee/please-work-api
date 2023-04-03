@@ -17,7 +17,8 @@ router.get('/login', async (req, res) => {
     'user-top-read',
     'user-read-recently-played',
     'user-library-read', 
-    'user-follow-read'];
+    'user-follow-read'
+  ];
 
     res.redirect(spotifyApi.createAuthorizeURL(scopes))
   // res.redirect('https://accounts.spotify.com/authorize?' +
