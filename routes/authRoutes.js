@@ -5,6 +5,7 @@ const axios = require('axios')
 const querystring = require('querystring')
 let SpotifyWebApi = require('spotify-web-api-node');
 const encodeFormData = require('../helpers/encodeFormData.js')
+const db = require('../db/connect.js');
 
 let spotifyApi = new SpotifyWebApi({
   clientId: process.env.CLIENT_ID,
@@ -55,12 +56,40 @@ router.get('/logged', async (req, res) => {
     console.log('refresh token:', refresh_token);
     
     console.log(`access token expires in  ${expires_in} s.`)
+    spotifyApi.getMe()
+    .then((data) => {
+      console.log(data)
+      console.log(data.body.images[1].url)
+      const user = {
+        name: data.body.display_name,
+        id: data.body.id,
+        img: data.body.images[1].url
+      }
+      let mongoClient
+   
+      mongoClient = db.connectToCluster()
+      const database = mongoClient.db("discjunky")
+      const collection = database.collection("users")
+      const result = collection.findOne({id: data.body.id})
+      
+      if(result) {
+          // TODO: get Users saved wishlist
+          return
+      } else {
+          // TODO: save this user to the database
+          let createdUser = collection.insertOne(user)
+//          res.send(createdUser)
+      }
+    }).catch((err) => {
+      console.log(err)
+    })
 
 		const query = querystring.stringify(data.body);
 		res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
 
     setInterval(async() => {
       const data = await spotifyApi.refreshAccessToken();
+      console.log(data);
       const access_token = data.body['access_token'];
 
       console.log('access token has been refreshed.');
@@ -68,9 +97,10 @@ router.get('/logged', async (req, res) => {
 
       spotifyApi.setAccessToken(access_token);
 
-      const query = querystring.stringify(data.body);
-      res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
-    }, expires_in / 2 * 1000);
+  //    const query = querystring.stringify(data.body);
+    //  console.log(`${process.env.CLIENT_REDIRECTURI}?${query}`);
+      //res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
+    }, expires_in * 1000 - 120000);
   })
   .catch(error => {
     console.log('Error refreshing token:', error);

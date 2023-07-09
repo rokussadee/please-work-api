@@ -6,10 +6,12 @@ const userpass = encodeURIComponent(process.env.MONGO_USERPASS);
 
 const uri = `mongodb+srv://${username}:${userpass}@cluster0.vxrxnqu.mongodb.net/?retryWrites=true&w=majority`;
 
-const connectToCluster = async (uri) => {
+const connectToCluster = async () => {
   let client;
+  console.log(uri)
   try {
-    console.log(uri)
+      console.log(uri)
+
     client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
     await client.connect()
     return client

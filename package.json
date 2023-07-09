@@ -24,10 +24,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "mongodb": "^5.7.0",
     "mongosh": "^1.8.0",
     "node-fetch": "^3.3.0",
     "nodemon": "^2.0.20",
     "puppeteer": "^19.3.0",
+    "puppeteer-cluster": "^0.23.0",
     "rambda": "^7.5.0",
     "spotify-web-api-node": "^5.0.2"
   }

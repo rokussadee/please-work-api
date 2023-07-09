@@ -2,8 +2,11 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const app = express()
+
 const puppeteer = require('puppeteer')
 const R = require('rambda')
+const fs = require('fs')
+
 const port = process.env.PORT || 8888
 const args = [
   '--disable-gpu',
@@ -11,6 +14,15 @@ const args = [
   '--disable-dev-shm-usage',
   // '--shm-size=3gb'
 ]
+
+// https://stackoverflow.blog/2021/10/06/best-practices-for-authentication-and-authorization-for-rest-apis/
+// https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design
+
+// TODO: caching using apicache, possibly in combination withh redis
+// https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/#h-name-collections-with-plural-nouns
+// https://www.npmjs.com/package/apicache, https://redis.io/, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+// const apicache = require('apicache')
+// let cache = apicache.middleware
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}))
@@ -61,6 +73,13 @@ app.post('/getDiscogsListings', async (req, res) => {
   await Promise.all(promised)
   .then(async (promised) => {
     // console.log(promised)
+//    fs.writeFile('mockdata.json', JSON.stringify(promised), (err) => {
+//      if (err) {
+//      } else {
+//        console.log("file written successfully")
+//        console.log(fs.readFileSync("mockdata.json", "utf8"));
+//      }
+//    })
     res.send(promised)
     await browser.close()
   })
@@ -68,7 +87,7 @@ app.post('/getDiscogsListings', async (req, res) => {
 })  
 
   
-async function scrapeWebPage(order, limit, format, encodedQuery) {
+async function scrapeWebPage(order, limit, format, encodedQuery)  {
   try {
     const page = await browser.newPage()
   
@@ -80,12 +99,12 @@ async function scrapeWebPage(order, limit, format, encodedQuery) {
     await page.close()
     return result
   } catch(e) {
-    console.log(e)
+    console.log(encodedQuery,e)
   }
 }
 
 /**
- * 
+ *  
  * @param   {Object} page An object of the page puppeteer is scraping over
  * @returns {Array}       An array of objects containing properties for each queried listing
  */
@@ -109,6 +128,6 @@ async function getPageListings(page) {
       return await itemCollection
     })
   } catch(e) {
-    console.log(e)
+    console.log("line 112",e)
   }
 }

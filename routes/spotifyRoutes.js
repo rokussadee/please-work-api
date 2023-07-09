@@ -22,6 +22,7 @@ router.get('/getUser', async (req, res) => {
         artists: object.artists
       }
     }))
+
     res.send(topAlbums)
   } catch(error) {
     console.error('error getting profile: ',error);
@@ -59,7 +60,7 @@ async function getUserPlaylists(userName) {
   return playlists
 }
 
-async function getTopTracks() {
+ async function getTopTracks() {
   const data = await spotifyApi.getMyTopTracks()
 
   let tracks = [];
