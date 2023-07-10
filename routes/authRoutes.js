@@ -57,7 +57,7 @@ router.get('/logged', async (req, res) => {
     
     console.log(`access token expires in  ${expires_in} s.`)
     spotifyApi.getMe()
-    .then((data) => {
+    .then(async (data) => {
       console.log(data)
       console.log(data.body.images[1].url)
       const user = {
@@ -67,18 +67,18 @@ router.get('/logged', async (req, res) => {
       }
       let mongoClient
    
-      mongoClient = db.connectToCluster()
-      const database = mongoClient.db("discjunky")
-      const collection = database.collection("users")
-      const result = collection.findOne({id: data.body.id})
+      mongoClient = await db.connectToCluster()
+      const database = await mongoClient.db("discjunky")
+      const collection = await database.collection("users")
+      const result = await collection.findOne({id: data.body.id})
       
       if(result) {
           // TODO: get Users saved wishlist
           return
       } else {
           // TODO: save this user to the database
-          let createdUser = collection.insertOne(user)
-//          res.send(createdUser)
+          let createdUser = await collection.insertOne(user)
+          console.log(createdUser)
       }
     }).catch((err) => {
       console.log(err)

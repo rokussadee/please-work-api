@@ -8,10 +8,7 @@ const uri = `mongodb+srv://${username}:${userpass}@cluster0.vxrxnqu.mongodb.net/
 
 const connectToCluster = async () => {
   let client;
-  console.log(uri)
   try {
-      console.log(uri)
-
     client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
     await client.connect()
     return client
