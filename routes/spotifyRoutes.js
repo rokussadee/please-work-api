@@ -6,6 +6,17 @@ let SpotifyWebApi = require('spotify-web-api-node');
 
 let spotifyApi = new SpotifyWebApi()
 
+router.get('/getUserId', async(req, res) => {
+  try {
+    spotifyApi.getMe()
+    .then(data => {
+      const user_id = data.body.id
+      res.status(200).send(user_id)
+      return user_id
+    })
+  } catch(error) { console.log('error getting user id:', error)}
+})
+
 router.get('/getUser', async (req, res) => {
   const token = req.query.token;
   console.log(token)
