@@ -1,5 +1,4 @@
 const express = require('express')
-const fs = require('fs')
 const router = express.Router()
 const axios = require('axios')
 const querystring = require('querystring')
@@ -22,14 +21,6 @@ router.get('/login', async (req, res) => {
   ];
 
     res.redirect(spotifyApi.createAuthorizeURL(scopes))
-  // res.redirect('https://accounts.spotify.com/authorize?' +
-  //   querystring.stringify({
-  //     response_type: 'code',
-  //     client_id: process.env.CLIENT_ID,
-  //     scope: scope,
-  //     redirect_uri: process.env.REDIRECTURI
-  //   })
-  // );
 });
 
 router.get('/logged', async (req, res) => {
@@ -43,6 +34,8 @@ router.get('/logged', async (req, res) => {
     return;
   }
 
+  let mongoClient
+  
   spotifyApi.authorizationCodeGrant(code)
   .then(data => {
     const access_token = data.body['access_token'];
@@ -58,10 +51,9 @@ router.get('/logged', async (req, res) => {
     console.log(`access token expires in  ${expires_in} s.`)
     spotifyApi.getMe()
     .then(async (data) => {
-      let mongoClient
   
       mongoClient = await db.connectToCluster()
-      const collection = await mongoClient.db("discjunky").collection("users")
+      const collection = mongoClient.db("discjunky").collection("users")
       const result = await collection.findOne({id: data.body.id})
       
       if(!result) {
@@ -78,7 +70,10 @@ router.get('/logged', async (req, res) => {
       }
     }).catch((err) => {
       console.log(err)
+    }).finally(() => {
+      mongoClient.close()
     })
+
 
 		const query = querystring.stringify(data.body);
 		res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
@@ -93,36 +88,12 @@ router.get('/logged', async (req, res) => {
 
       spotifyApi.setAccessToken(access_token);
 
-  //    const query = querystring.stringify(data.body);
-    //  console.log(`${process.env.CLIENT_REDIRECTURI}?${query}`);
-      //res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
     }, expires_in * 1000 - 120000);
   })
   .catch(error => {
     console.log('Error refreshing token:', error);
     res.send(`Error refreshing token: ${error}`)
   })
-	// const body = {
-	// 	grant_type: 'authorization_code',
-	// 	code: req.query.code,
-	// 	redirect_uri: process.env.REDIRECTURI,
-	// 	client_id: process.env.CLIENT_ID,
-	// 	client_secret: process.env.CLIENT_SECRET,
-	// }
-
-// 	await axios('https://accounts.spotify.com/api/token', {
-// 		method: 'POST',
-// 		headers: {
-// 			"Content-Type": "application/x-www-form-urlencoded",
-// 			"Accept": "application/json"
-// 		},
-// 		data: body
-// 	})
-// 	.then(response => response.data)
-// 	.then(data => {
-// 		const query = querystring.stringify(data);
-// 		res.redirect(`${process.env.CLIENT_REDIRECTURI}?${query}`);
-// 	});
 });
 
 

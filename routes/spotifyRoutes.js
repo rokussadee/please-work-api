@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const axios = require('axios')
 const querystring = require('querystring')
 let SpotifyWebApi = require('spotify-web-api-node');
 

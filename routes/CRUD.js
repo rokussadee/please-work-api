@@ -5,8 +5,6 @@ const username = encodeURIComponent(process.env.MONGO_USERID);
 
 const userpass = encodeURIComponent(process.env.MONGO_USERPASS);
 
-//const uri = `mongodb+srv://${username}:${userpass}@cluster0.vxrxnqu.mongodb.net/?retryWrites=true&w=majority`;
-
 router.get('/getUsers', async (req, res) => {
   let mongoClient
   try {
@@ -16,7 +14,10 @@ router.get('/getUsers', async (req, res) => {
     res.send(users)
   } catch (err) { 
     console.log(err)
-  }
+  }finally {
+      mongoClient.close()
+    }
+
 })
 
 router.post('/findUser', async (req, res) => {
@@ -45,7 +46,10 @@ router.post('/createUser', async (req, res) => {
     res.send(user)
   } catch (err) { 
     console.log(err)
-  }
+  }finally {
+      mongoClient.close()
+    }
+
 }) 
 
 router.post('/additem', async(req, res) => {
@@ -63,14 +67,36 @@ router.post('/additem', async(req, res) => {
       const updatedUser = await collection.updateOne(
         {id: user_id},
         {$push:{wishlist:item}})
-      res.send(updatedUser)
+      res.status(200).send(updatedUser)
     } catch (err) { 
       res.status(500).send({
         error: 'Something went wrong',
         value: err
       })
+    } finally {
+      mongoClient.close()
     }
+})
 
+router.delete('/removeitem', async(req, res) => {
+  const user_id = req.body.user_id
+  
+  let mongoClient
+    try {
+      mongoClient = await db.connectToCluster()
+      const collection = mongoClient.db("discjunky").collection("users")
+      const updatedUser = await collection.updateOne(
+        {id: user_id},
+        {$pull:{wishlist:{item_link: req.body.item_link}}})
+        res.status(200).send(updatedUser)
+    } catch (err) { 
+      res.status(500).send({
+        error: 'Something went wrong',
+        value: err
+      })
+    }finally {
+      mongoClient.close()
+    }
 
 })
 
