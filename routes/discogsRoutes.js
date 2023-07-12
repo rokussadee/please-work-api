@@ -27,30 +27,23 @@ router.post('/getDiscogsListings', async (req, res) => {
   }
   let limit = req.body.limit
   let format = req.body.format
-  let body = req.body.list
+  let body = Array.from(req.body.list)
 
   const promised = body.map(async function (album) {
     let query = `${[...album.artists]}-${album.title}`
     const encodedQuery = encodeURIComponent(query)
     const discogsData = await scrapeWebPage(order, limit, format, encodedQuery)
-    return {
-      ...album,
-      listings: {
-        ...discogsData
-      }
+      return{
+        ...album,
+        listings: discogsData
     }
   })
+  
   await Promise.all(promised)
   .then(async (promised) => {
-    // console.log(promised)
-//    fs.writeFile('mockdata.json', JSON.stringify(promised), (err) => {
-//      if (err) {
-//      } else {
-//        console.log("file written successfully")
-//        console.log(fs.readFileSync("mockdata.json", "utf8"));
-//      }
-//    })
-    res.send(promised)
+    let filteredpromise =  Array.from(promised).filter((item) => item.listings !== undefined);
+
+    res.send(filteredpromise)
     await browser.close()
   })
 
@@ -64,10 +57,12 @@ async function scrapeWebPage(order, limit, format, encodedQuery)  {
     await page.goto(`https://www.discogs.com/sell/list?sort=${order}&limit=${limit}&q=${encodedQuery}`, {
       waitUntil: 'networkidle2'
     });
-    await page.waitForSelector('tr.shortcut_navigable');
-    let result = await getPageListings(page)
+    let isLoaded = await page.waitForSelector('tr.shortcut_navigable', {timeout: 10000});
+    if (isLoaded) {
+      let result = await getPageListings(page)
+      return result
+    }
     await page.close()
-    return result
   } catch(e) {
     console.log(encodedQuery,e)
   }
