@@ -1,9 +1,25 @@
-const express = require('express')
-const cors = require('cors')
-require('dotenv').config()
-const app = express()
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const app = express();
+const {connectToDatabase} = require('./db/mongodb.js');
+//const { db } = require('./db/connect.js')
+const R = require('rambda');
 
-const R = require('rambda')
+//let collection
+//
+//(async() => {
+//	try {
+//    const {db} = await connectToDatabase()	// get the database
+//		// search the database
+//    console.log('database: ', db)
+//    console.log('collection: ', db.collection)
+//    collection = db.collection
+//	} catch (error) {
+//    console.log(error)
+//	}
+//	// if request is made without a session or valid query
+//})();
 
 const port = process.env.PORT || 8888
 
@@ -36,4 +52,10 @@ app.listen(port, () => {
   console.log(`app listening at http://localhost:${port}`)
 })
 
+const cleanup = (event) => { // SIGINT is sent for example when you Ctrl+C a running process from the command line.
+  console.log('mongo client closing: ', client)
+  process.exit(); // Exit with default success-code '0'.
+}
 
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
