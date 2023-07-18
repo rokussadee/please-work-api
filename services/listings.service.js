@@ -56,20 +56,17 @@ const scrapeWishlistListings = async (links) => {
 
   const promised = await links.map(async (listingPage) => {
     const listingData = await openListingPage(listingPage)
-    console.log('ln60:',listingData)
     return {
-      item_link: listingPage,
+      item_link: listingPage, 
       ...listingData
     }
   })
 
   const data = await Promise.all(promised)
   .then(async (promised) => {
-    console.log('ln68:',promised)
     return promised
   })
   .finally(async() => {
-
     await browser.close()
   })
   return data
@@ -96,7 +93,6 @@ async function scrapeWebPage(order, limit, format, encodedQuery)  {
 async function openListingPage(link) {
   try {
 
-    console.log('listingservice ln 89:',link)
     const page = await browser.newPage()
 
     await page.goto(link, {
@@ -106,7 +102,6 @@ async function openListingPage(link) {
     let isLoaded = await page.waitForSelector('div#page', {timeout: 10000} )
     if (isLoaded) {
       let result = await scrapeListingDetails(page)
-      console.log('ln99:',result)
       return result
     }
     await page.close()
@@ -139,7 +134,7 @@ async function getPageListings(page) {
       return await itemCollection
     })
   } catch(e) {
-    console.log("line 112",e)
+    console.log(e)
   }
 }
 
@@ -157,7 +152,6 @@ async function scrapeListingDetails(page) {
         seller_name: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_title > a', el => el.innerText),
         seller_rating: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_content > strong', el => el.innerText)
       }
-      console.log('ln156:', result)
       return await result
     })
     return await listingDetails
