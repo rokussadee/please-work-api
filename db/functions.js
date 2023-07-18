@@ -82,6 +82,7 @@ async function findUserWishlist(user_id) {
     console.log(err)
   }
 }
+
 module.exports = {
   findAllUsers,
   insertUser,

@@ -6,7 +6,7 @@ const args = [
   // '--shm-size=3gb'
 ]
 const browserOptions = {
-    headless: false,
+    headless: true,
     handleSIGINT: false,
     args: args
   }

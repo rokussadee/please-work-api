@@ -81,9 +81,7 @@ const spotifyAuthFlow= async (code) => {
   .catch(error => {
     console.log('Error refreshing token:', error);
     return error
-//    res.send(`Error refreshing token: ${error}`)
   })
-//  console.log('ln 96:', redirectUrl)
 }
 module.exports = {
   authorizeUser,

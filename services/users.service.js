@@ -1,8 +1,6 @@
-//const db = require('../db/connect.js');
 const { insertUser, findUserById, findAllUsers } = require('../db/functions.js')
 
 const findUsers = async () => {
-//  let mongoClient
   try {
     const users = await findAllUsers()
     return users
@@ -26,20 +24,7 @@ const createUser = async (userdata) => {
     img: userdata.img,
     wishlist: []
   }
-//  let mongoClient
-//  try {
-//    mongoClient = db.connectToCluster()
-//    const collection = mongoClient.db("discjunky").collection("users")
-//    let user = collection.insertOne(user)
-//    return user
-//  } catch (err) { 
-//    console.log(err)
-//  }finally {
-//      mongoClient.close()
-//  }
   try {
-//        console.log(collection)
-//    return collection.insertOne(user)
     await insertUser(user)
 
   } catch (err) {
