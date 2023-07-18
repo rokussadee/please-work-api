@@ -79,7 +79,7 @@ async function scrapeWebPage(order, limit, format, encodedQuery)  {
     await page.goto(`https://www.discogs.com/sell/list?sort=${order}&limit=${limit}&q=${encodedQuery}`, {
       waitUntil: 'networkidle2'
     });
-    let isLoaded = await page.waitForSelector('tr.shortcut_navigable', {timeout: 10000});
+    let isLoaded = await page.waitForSelector('tr.shortcut_navigable', {timeout: 3000});
     if (isLoaded) {
       let result = await getPageListings(page)
       return result
@@ -149,6 +149,7 @@ async function scrapeListingDetails(page) {
         price: await page.$eval('#page_aside > div > div.hide_mobile > div > div > p > span.price', el => el.innerText),
         shipping: await page.$eval('#page_aside > div > div.hide_mobile > div > div > p > span.reduced', el => el.innerText),
         condition: await page.$eval('#page_aside > div > div:nth-child(2) > div > p:nth-child(1) > span', el => el.innerText),
+        discogs_image: await page.$eval('#page_content > div > div.body > div > div.image_gallery.image_gallery_large > a > span.thumbnail_center > img', el => el.src),
         seller_name: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_title > a', el => el.innerText),
         seller_rating: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_content > strong', el => el.innerText)
       }

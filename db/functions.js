@@ -39,22 +39,22 @@ async function findUserById(user_id) {
   }
 }
 
-async function pushToWishlist(user_id, item) {
+async function pushToWishlist(user_id, item_link) {
   try{  
     const updatedUser = await collection.updateOne(
         {id: user_id},
-        {$push:{wishlist:item}})
+        {$push:{wishlist:item_link}})
     return updatedUser
   } catch(err) {
     console.log(err)
   }
 }
 
-async function pullFromWishlist(user_id, item) {
+async function pullFromWishlist(user_id, item_link) {
   try{
-      const updateduser = await collection.updateone(
+      const updatedUser = await collection.updateOne(
         {id: user_id},
-        {$pull:{wishlist:{item_link: item_link}}})
+        {$pull:{wishlist:{$eq: item_link}}})
       return updatedUser
   } catch(err) {
     console.log(err)
