@@ -15,6 +15,7 @@ let collection
 async function findAllUsers() {
   try {
     const allUsers = await collection.find().toArray()
+    return allUsers
   } catch(err) {
     console.log(err)
   }
@@ -73,9 +74,10 @@ async function findUserWishlist(user_id) {
           }
         )
         .toArray((err, results) => {
-          console.log(results)
+          return results[0].wishlist
         })
-        return wishlist
+    console.log('dbfunctions ln 78:', wishlist[0].wishlist)
+        return wishlist[0].wishlist
   } catch(err) {
     console.log(err)
   }

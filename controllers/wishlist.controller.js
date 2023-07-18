@@ -31,6 +31,7 @@ const deleteItem = async(req, res) => {
 const getWishlist = async(req,res) => {
   try {
     const user_id = req.query.id
+    console.log(user_id)
     const wishlist = await findWishlist(user_id)
     res.status(200).send(wishlist)
   } catch(err) {

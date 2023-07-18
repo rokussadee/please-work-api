@@ -4,7 +4,8 @@ const { insertUser, findUserById, findAllUsers } = require('../db/functions.js')
 const findUsers = async () => {
 //  let mongoClient
   try {
-    await findAllUsers()
+    const users = await findAllUsers()
+    return users
   } catch (err) { 
     console.log(err)
   }

@@ -14,19 +14,16 @@ const removeItemFromWishlist = async(user_id, item_link) => {
       await pullFromWishlist(user_id, item_link)
     } catch (err) { 
       console.log(err)
-    }finally {
-      mongoclient.close()
     }
-
 }
 
 const findWishlist = async(user_id)=> {
-    try {
-    } catch (err) { 
-      console.log(err)
-    }finally {
-      mongoClient.close()
-    }
+  try {
+    const userWishlist = await findUserWishlist(user_id)
+    return userWishlist
+  } catch (err) { 
+    console.log(err)
+  }
 }
 
 module.exports ={

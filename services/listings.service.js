@@ -5,14 +5,16 @@ const args = [
   '--disable-dev-shm-usage',
   // '--shm-size=3gb'
 ]
+const browserOptions = {
+    headless: false,
+    handleSIGINT: false,
+    args: args
+  }
 
 let browser;
 
 const scrapeDiscogsListings = async (options) => {
-  browser = await puppeteer.launch({
-  headless: true,
-  handleSIGINT: false,
-  args: args})
+  browser = await puppeteer.launch(browserOptions)
 
   let order
   if(options.sort == 'newestfirst') {
@@ -47,6 +49,32 @@ const scrapeDiscogsListings = async (options) => {
   return data
 }
 
+const scrapeWishlistListings = async (links) => {
+  browser = await puppeteer.launch(browserOptions)
+
+  console.log('listingservice ln 55:',links)
+
+  const promised = await links.map(async (listingPage) => {
+    const listingData = await openListingPage(listingPage)
+    console.log('ln60:',listingData)
+    return {
+      item_link: listingPage,
+      ...listingData
+    }
+  })
+
+  const data = await Promise.all(promised)
+  .then(async (promised) => {
+    console.log('ln68:',promised)
+    return promised
+  })
+  .finally(async() => {
+
+    await browser.close()
+  })
+  return data
+}
+
 async function scrapeWebPage(order, limit, format, encodedQuery)  {
   try {
     const page = await browser.newPage()
@@ -65,6 +93,27 @@ async function scrapeWebPage(order, limit, format, encodedQuery)  {
   }
 }
 
+async function openListingPage(link) {
+  try {
+
+    console.log('listingservice ln 89:',link)
+    const page = await browser.newPage()
+
+    await page.goto(link, {
+      waitUntil: 'networkidle2'
+    })
+
+    let isLoaded = await page.waitForSelector('div#page', {timeout: 10000} )
+    if (isLoaded) {
+      let result = await scrapeListingDetails(page)
+      console.log('ln99:',result)
+      return result
+    }
+    await page.close()
+  } catch(err) {
+    console.log(err)
+  }
+}
 /**
  *  
  * @param   {Object} page An object of the page puppeteer is scraping over
@@ -94,6 +143,30 @@ async function getPageListings(page) {
   }
 }
 
+async function scrapeListingDetails(page) {
+  try {
+    const listingDetails = await page.waitForSelector('div#page')
+    .then(async () => {
+      const result = {
+        album_title: await page.$eval('#profile_title > span:nth-child(2)', el => el.innerText),
+        artist_title: await page.$eval('#profile_title > span:last-of-type', el => el.innerText),
+        format: await page.$eval('#page_content > div > div.body > div > div.profile > div:nth-child(6)', el => el.innerText),
+        price: await page.$eval('#page_aside > div > div.hide_mobile > div > div > p > span.price', el => el.innerText),
+        shipping: await page.$eval('#page_aside > div > div.hide_mobile > div > div > p > span.reduced', el => el.innerText),
+        condition: await page.$eval('#page_aside > div > div:nth-child(2) > div > p:nth-child(1) > span', el => el.innerText),
+        seller_name: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_title > a', el => el.innerText),
+        seller_rating: await page.$eval('#page_aside > div > div:nth-child(3) > div.section_content > strong', el => el.innerText)
+      }
+      console.log('ln156:', result)
+      return await result
+    })
+    return await listingDetails
+  } catch(err) {
+    console.log(err)
+  }
+}
+
 module.exports = {
-  scrapeDiscogsListings
+  scrapeDiscogsListings,
+  scrapeWishlistListings
 }
