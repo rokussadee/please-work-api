@@ -1,3 +1,5 @@
+//source: https://github.com/thelinmichael/spotify-web-api-node
+
 const { insertUser, findUserById } = require('../db/functions.js')
 const querystring = require('querystring')
 
@@ -55,7 +57,7 @@ const spotifyAuthFlow= async (code) => {
       }
     }).catch((err) => {
       console.log('ln65:',err)
-      return error
+      return err
     })
 
 		const query = querystring.stringify(data.body);
@@ -73,7 +75,9 @@ const spotifyAuthFlow= async (code) => {
 
       spotifyApi.setAccessToken(access_token);
 
-    }, expires_in * 1000 - 120000);
+    }, 
+      expires_in * 1000 - 120000
+    );
 
     console.log('ln89:',redirectUrl)
     return redirectUrl

@@ -2,9 +2,6 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
-const {connectToDatabase} = require('./db/mongodb.js');
-const R = require('rambda');
-
 const port = process.env.PORT || 8888
 
 // https://stackoverflow.blog/2021/10/06/best-practices-for-authentication-and-authorization-for-rest-apis/
@@ -37,7 +34,7 @@ app.listen(port, () => {
 })
 
 const cleanup = (event) => { // SIGINT is sent for example when you Ctrl+C a running process from the command line.
-  console.log('mongo client closing: ', client)
+  console.log('mongo client closing')
   process.exit(); // Exit with default success-code '0'.
 }
 

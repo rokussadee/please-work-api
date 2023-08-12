@@ -1,3 +1,5 @@
+// source: https://github.com/vercel/next.js/discussions/31416#discussioncomment-1754211
+
 /**
  * @abstract This script handles the database connection and ensures connections are reused.
  */

@@ -21,7 +21,6 @@ router.get('/getUser', async (req, res) => {
   console.log(token)
   try {
     spotifyApi.setAccessToken(token)
-    const me = await spotifyApi.getMe();
 
     let topTracks = await getTopTracks()
 
@@ -62,7 +61,7 @@ async function getUserPlaylists(userName) {
     console.log(playlist.name + " " + playlist.id)
     
     let tracks = await getPlaylistTracks(playlist.id, playlist.name);
-    // console.log(tracks);
+   // console.log(tracks);
 
     const tracksJSON = { tracks }
     let data = JSON.stringify(tracksJSON);
