@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-- [About the Project](abouttheproject)
-- [Usage](usage)
-- [References](references)
-- [Design](design)
+- About the Project
+- Usage
+- References
+- Design
 
 ## About the project
 
