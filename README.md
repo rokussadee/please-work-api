@@ -1,11 +1,11 @@
-# DiscJunky
+# DiscJunky – Back End
 
 ## Table of Contents
 
-- [About the Project](abouttheproject)
-- [Usage](usage)
-- [References](references)
-- [Design](design)
+- About the Project
+- Usage
+- References
+- Design
 
 ## About the project
 
@@ -23,8 +23,8 @@ For about ten seconds, no actual content will be rendered apart from the navigat
 
 ## References
 
-- [Clean up MongoDB client on application shutdown ](https://stackoverflow.com/a/34321182)[(`index.js`: ln39)](./index.js)
+- [Clean up MongoDB client on application shutdown ](https://stackoverflow.com/a/34321182)[(`index.js`: ln36)](./index.js)
 - [Global mongodb variable for reusage of connections ](https://github.com/vercel/next.js/discussions/31416#discussioncomment-1754211)[(`mongodb.js`)](./db/mongodb.js)
 - [Spotify connection largely based on *Spotify Web API Node*'s github page ](https://github.com/thelinmichael/spotify-web-api-node)[(`authentication.service.js`)](./services/authentication.service.js)
-- [Web Scraping code written using Puppeteer.dev ](https://pptr.dev/)[(`listings.service.js`)](./services.listings.service.js)
+- [Web Scraping code written using Puppeteer.dev ](https://pptr.dev/)[(`listings.service.js`)](./services/listings.service.js)
 
