@@ -9,7 +9,7 @@ const args = [
   // '--shm-size=3gb'
 ]
 
-chromium.setHeadlessMode="new"
+chromium.setHeadlessMode=false
 
 chromium.setGraphicsMode=false
 
