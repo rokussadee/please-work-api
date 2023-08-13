@@ -11,8 +11,8 @@ const browserOptions = {
     headless: "new",
     handleSIGINT: false,
     args: args,
-//    ignoreHTTPSErrors :true,
-//    executablePath: '/usr/bin/chromium-browser',
+    ignoreHTTPSErrors :true,
+    executablePath: '/usr/bin/chromium-browser',
   }
 
 let browser;
