@@ -1,24 +1,35 @@
 // source: https://pptr.dev/
 
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const args = [
   '--disable-gpu',
   '--no-sandbox',
   '--disable-dev-shm-usage',
   // '--shm-size=3gb'
 ]
-const browserOptions = {
-    headless: "new",
-    handleSIGINT: false,
-    args: args,
-//    ignoreHTTPSErrors :true,
-//    executablePath: '/usr/bin/chromium-browser',
-  }
 
+chromium.setHeadlessMode="new"
+
+chromium.setGraphicsMode=false
+
+//const browserOptions = {
+//  headless: "new",
+//    args: args,
+//    executablePath: '/usr/bin/chromium-browser',
+//}
+  
 let browser;
 
 const scrapeDiscogsListings = async (options) => {
-  browser = await puppeteer.launch(browserOptions)
+  browser = await puppeteer.launch({
+     headless: chromium.headless,
+    handleSIGINT: false,
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    ignoreHTTPSErrors :true,
+  })
 
   let order
   if(options.sort == 'newestfirst') {
@@ -54,7 +65,14 @@ const scrapeDiscogsListings = async (options) => {
 }
 
 const scrapeWishlistListings = async (links) => {
-  browser = await puppeteer.launch(browserOptions)
+  browser = await puppeteer.launch({
+     headless: chromium.headless,
+    handleSIGINT: false,
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    ignoreHTTPSErrors :true,
+  })
 
   console.log('listingservice ln 55:',links)
 
