@@ -28,6 +28,7 @@
     "nodemon": "^2.0.20",
     "puppeteer": "^19.4.0",
     "puppeteer-core": "^19.4.0",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-preferences": "^2.4.1",
     "spotify-web-api-node": "^5.0.2"
   },
