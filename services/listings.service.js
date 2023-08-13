@@ -8,9 +8,11 @@ const args = [
   // '--shm-size=3gb'
 ]
 const browserOptions = {
-    headless: true,
+    headless: "new",
     handleSIGINT: false,
-    args: args
+    args: args,
+//    ignoreHTTPSErrors :true,
+//    executablePath: '/usr/bin/chromium-browser',
   }
 
 let browser;
