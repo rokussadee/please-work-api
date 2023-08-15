@@ -83,7 +83,7 @@ async function scrapeWebPage(order, limit, format, encodedQuery)  {
     await page.goto(`https://www.discogs.com/sell/list?sort=${order}&limit=${limit}&q=${encodedQuery}`, {
       waitUntil: 'networkidle2'
     });
-    let isLoaded = await page.waitForSelector('tr.shortcut_navigable', {timeout: 3000});
+    let isLoaded = await page.waitForSelector('tr.shortcut_navigable', {timeout: 30000});
     if (isLoaded) {
       let result = await getPageListings(page)
       return result
@@ -103,7 +103,7 @@ async function openListingPage(link) {
       waitUntil: 'networkidle2'
     })
 
-    let isLoaded = await page.waitForSelector('div#page', {timeout: 10000} )
+    let isLoaded = await page.waitForSelector('div#page', {timeout: 30000} )
     if (isLoaded) {
       let result = await scrapeListingDetails(page)
       return result
